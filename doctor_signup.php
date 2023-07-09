@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Edoctor Signup</title>
+  <title>Doctor Signup</title>
   <style>
     body {
       background-color: #f2f2f2;
@@ -109,6 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required><br><br>
       <input type="submit" value="Signup">
+      <p>Already have an account? <a href="doctor_login.php">Login here</a></p>
     </form>
   </div>
 </body>

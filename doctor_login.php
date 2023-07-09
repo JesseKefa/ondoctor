@@ -119,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required><br><br>
       <input type="submit" value="Login">
+      <p>Don't have an account? <a href="doctor_signup.php">Signup here</a></p>
     </form>
     <?php if (isset($error_message)): ?>
       <p class="error-message"><?php echo $error_message; ?></p>
