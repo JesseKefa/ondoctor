@@ -1,30 +1,29 @@
 <?php
-// Start the session
+
 session_start();
 
-// Check if the user is not logged in
+
 if (!isset($_SESSION["name"])) {
   header("Location: doctor_login.php");
   exit();
 }
 
-// Database configuration
+
 $hostname = "localhost";
 $username = "root";
 $password = "";
-$database = "ddapp"; // Update with your actual database name
+$database = "ddapp"; 
 
-// Establish a database connection
 $conn = mysqli_connect($hostname, $username, $password, $database);
 
-// Check if the connection was successful
+
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-// Check if the form is submitted
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  // Check if a file is uploaded
+
   if (isset($_FILES["profile_picture"]) && $_FILES["profile_picture"]["error"] == 0) {
     $name = $_SESSION["name"];
     $file_name = $_FILES["profile_picture"]["name"];
@@ -32,23 +31,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_size = $_FILES["profile_picture"]["size"];
     $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
     
-    // Check file size
-    if ($file_size > 5242880) { // 5MB (in bytes)
+
+    if ($file_size > 5242880) { 
       $error_message = "File size exceeds the allowed limit (5MB).";
     } else {
-      // Generate a unique file name to avoid conflicts
+
       $new_file_name = uniqid("profile_", true) . "." . $file_ext;
       
-      // Set the file upload path
+
       $upload_path = "profile_pictures/" . $new_file_name;
       
-      // Move the uploaded file to the desired location
+
       if (move_uploaded_file($file_tmp, $upload_path)) {
-        // Prepare the SQL query to insert the file details into the database
+    
         $query = "INSERT INTO profile_pictures (doctor_name, file_name, file_path) 
                   VALUES ('$name', '$file_name', '$upload_path')";
         
-        // Execute the query
+    
         if (mysqli_query($conn, $query)) {
           $success_message = "Profile picture uploaded successfully!";
         } else {
@@ -63,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 
-// Fetch the doctor's profile picture from the database
+
 $name = $_SESSION["name"];
 $query = "SELECT file_path FROM profile_pictures WHERE doctor_name = '$name' ORDER BY id DESC LIMIT 1";
 $result = mysqli_query($conn, $query);
@@ -136,6 +135,25 @@ $profile_picture = mysqli_fetch_assoc($result);
       color: red;
       margin-top: 10px;
     }
+    table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+
+
+
+
+
+
+
+
   </style>
 </head>
 <body>
@@ -169,5 +187,85 @@ $profile_picture = mysqli_fetch_assoc($result);
       <?php endif; ?>
     </div>
   </div>
+
+
+
+  <h1>Doctor Dashboard</h1>
+
+<?php
+// Database connection settings
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "ddapp";
+
+// Create a connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch doctor's patients
+$doctor_ssn = $_GET['ssn']; // Assuming the doctor's SSN is passed via URL parameter
+$sql = "SELECT patients.ssn, patients.name, patients.address, patients.age FROM patients JOIN doctors ON patients.primary_physician_ssn = doctors.ssn WHERE doctors.ssn = '$doctor_ssn'";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    echo '<h2>Patients</h2>';
+    echo '<table>';
+    echo '<tr><th>SSN</th><th>Name</th><th>Address</th><th>Age</th></tr>';
+
+    while ($row = $result->fetch_assoc()) {
+        echo '<tr>';
+        echo '<td>' . $row['ssn'] . '</td>';
+        echo '<td>' . $row['name'] . '</td>';
+        echo '<td>' . $row['address'] . '</td>';
+        echo '<td>' . $row['age'] . '</td>';
+        echo '</tr>';
+    }
+
+    echo '</table>';
+} else {
+    echo '<p>No patients found.</p>';
+}
+
+// Prescription form
+echo '<h2>Prescribe Drugs</h2>';
+echo '<form action="prescription.php" method="post">';
+echo '<input type="hidden" name="doctor_ssn" value="' . $doctor_ssn . '">';
+echo '<label for="patient">Select Patient:</label>';
+echo '<select name="patient" id="patient">';
+
+$result = $conn->query("SELECT ssn, name FROM patients");
+while ($row = $result->fetch_assoc()) {
+    echo '<option value="' . $row['ssn'] . '">' . $row['name'] . '</option>';
+}
+
+echo '</select>';
+echo '<br>';
+echo '<label for="drug">Prescribe Drug:</label>';
+echo '<input type="text" name="drug" id="drug">';
+echo '<br>';
+echo '<label for="quantity">Quantity:</label>';
+echo '<input type="number" name="quantity" id="quantity" min="1">';
+echo '<br>';
+echo '<input type="submit" value="Prescribe">';
+echo '</form>';
+
+// Close the database connection
+$conn->close();
+?>
+
+
+
+
+
+
+
+  
+
+
 </body>
 </html>

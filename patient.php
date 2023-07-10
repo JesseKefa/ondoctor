@@ -133,55 +133,15 @@ mysqli_close($conn);
       margin-top: 10px;
     }
 
-    .doctors-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-
-        .doctor-row {
-            width: 48%;
-            margin-bottom: 20px;
-        }
-
-        .doctor-card {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .doctor-card h2 {
-            margin: 0;
-        }
-
-        .doctor-card p {
-            margin: 10px 0;
-        }
-
-        .doctor-card h3 {
-            margin: 20px 0 10px;
-        }
-
-        .doctor-card ul {
-            padding-left: 20px;
-        }
-
-        .submit-button {
-            display: block;
+    table {
+            border-collapse: collapse;
             width: 100%;
-            padding: 10px;
-            background-color: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
         }
 
-        .submit-button:hover {
-            background-color: #45a049;
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
 
 
@@ -221,84 +181,70 @@ mysqli_close($conn);
     </div>
   </div>
 
-  <h1>Choose Your Primary Physician</h1>
-    <form action="appointment.php" method="POST">
-        <div class="doctors-container">
-            <div class="doctor-row">
-                <div class="doctor-card">
-                    <h2>Dr. Sarah Johnson, MD</h2>
-                    <p>Specialization: Internal Medicine</p>
-                    <p>Education: Bachelor of Medicine, Master of Medicine</p>
-                    <p>Experience: Over 10 years in clinical practice</p>
-                    <h3>Reviews:</h3>
-                    <ul>
-                        <li>"Dr. Johnson is an incredible physician who takes the time to listen to her patients and provides thorough explanations. Highly recommended!" - John D.</li>
-                    </ul>
-                    <input type="radio" name="primary_physician" value="Dr. Sarah Johnson, MD"> Choose Dr. Sarah Johnson, MD as your primary physician<br>
-                </div>
+  <h1>Patient Dashboard</h1>
 
-                <div class="doctor-card">
-                    <h2>Dr. Michael Smith, MD</h2>
-                    <p>Specialization: Cardiology</p>
-                    <p>Education: Doctor of Medicine</p>
-                    <p>Experience: Over 15 years in clinical practice</p>
-                    <h3>Reviews:</h3>
-                    <ul>
-                        <li>"Dr. Smith is a knowledgeable and caring cardiologist. He explains everything clearly and addresses all concerns. Highly recommended!" - Lisa M.</li>
-                    </ul>
-                    <input type="radio" name="primary_physician" value="Dr. Michael Smith, MD"> Choose Dr. Michael Smith, MD as your primary physician<br>
-                </div>
-            </div>
+    <?php
+    // Database connection settings
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "ddapp";
 
-            <div class="doctor-row">
-                <div class="doctor-card">
-                    <h2>Dr. Emily Davis, MD</h2>
-                    <p>Specialization: Pediatrics</p>
-                    <p>Education: Doctor of Medicine</p>
-                    <p>Experience: Over 8 years in clinical practice</p>
-                    <h3>Reviews:</h3>
-                    <ul>
-                        <li>"Dr. Davis is fantastic with children. She is patient, kind, and knowledgeable. My kids love her!" - Jennifer R.</li>
-                    </ul>
-                    <input type="radio" name="primary_physician" value="Dr. Emily Davis, MD"> Choose Dr. Emily Davis, MD as your primary physician<br>
-                </div>
+    // Create a connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
 
-                <div class="doctor-card">
-                    <h2>Dr. James Anderson, MD</h2>
-                    <p>Specialization: Orthopedics</p>
-                    <p>Education: Doctor of Medicine</p>
-                    <p>Experience: Over 12 years in clinical practice</p>
-                    <h3>Reviews:</h3>
-                    <ul>
-                        <li>"Dr. Anderson is an excellent orthopedic surgeon. He helped me recover from a knee injury and provided great post-operative care." - Mark T.</li>
-                    </ul>
-                    <input type="radio" name="primary_physician" value="Dr. James Anderson, MD"> Choose Dr. James Anderson, MD as your primary physician<br>
-                </div>
-            </div>
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
-            <div class="doctor-row">
-                <div class="doctor-card">
-                    <h2>Dr. Laura Roberts, MD</h2>
-                    <p>Specialization: Dermatology</p>
-                    <p>Education: Doctor of Medicine</p>
-                    <p>Experience: Over 10 years in clinical practice</p>
-                    <h3>Reviews:</h3>
-                    <ul>
-                        <li>"Dr. Roberts is a skilled dermatologist. She has helped me improve my skin condition and always provides valuable skincare advice." - Sarah L.</li>
-                    </ul>
-                    <input type="radio" name="primary_physician" value="Dr. Laura Roberts, MD"> Choose Dr. Laura Roberts, MD as your primary physician<br>
-                </div>
+    // Fetch available doctors
+    $sql = "SELECT ssn, name FROM doctors";
+    $result = $conn->query($sql);
 
-                
-            </div>
+    if ($result->num_rows > 0) {
+        echo '<h2>Available Doctors</h2>';
+        echo '<table>';
+        echo '<tr><th>SSN</th><th>Name</th></tr>';
 
+        while ($row = $result->fetch_assoc()) {
+            echo '<tr>';
+            echo '<td>' . $row['ssn'] . '</td>';
+            echo '<td>' . $row['name'] . '</td>';
+            echo '</tr>';
+        }
 
-        </div>
+        echo '</table>';
+    } else {
+        echo '<p>No doctors found.</p>';
+    }
 
-        <input class="submit-button" type="submit" value="Schedule Appointment">
-    </form>
+    // Prescription form
+    echo '<h2>Request Prescription</h2>';
+    echo '<form action="prescription.php" method="post">';
+    echo '<input type="hidden" name="patient_ssn" value="' . $_GET['ssn'] . '">'; // Assuming the patient's SSN is passed via URL parameter
+    echo '<label for="doctor">Select Doctor:</label>';
+    echo '<select name="doctor" id="doctor">';
 
+    $result = $conn->query("SELECT ssn, name FROM doctors");
+    while ($row = $result->fetch_assoc()) {
+        echo '<option value="' . $row['ssn'] . '">' . $row['name'] . '</option>';
+    }
 
+    echo '</select>';
+    echo '<br>';
+    echo '<label for="drug">Request Drug:</label>';
+    echo '<input type="text" name="drug" id="drug">';
+    echo '<br>';
+    echo '<label for="quantity">Quantity:</label>';
+    echo '<input type="number" name="quantity" id="quantity" min="1">';
+    echo '<br>';
+    echo '<input type="submit" value="Request">';
+    echo '</form>';
+
+    // Close the database connection
+    $conn->close();
+    ?>
 
 </body>
 </html>
