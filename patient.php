@@ -164,6 +164,7 @@ mysqli_close($conn);
       </div>
       <form method="post" action="logout.php">
         <button class="logout-button" type="submit">Logout</button>
+        <button class="logout-button"><a href="index.php">Home</a></button>
       </form>
     </div>
     <div class="upload-form">
