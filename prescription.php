@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 
 // Process prescription form data
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $patient_ssn = $_POST['patient_ssn'];
+    $patient_ssn = $_POST['patient'];
     $doctor_ssn = $_POST['doctor_ssn'];
     $drug = $_POST['drug'];
     $quantity = $_POST['quantity'];
@@ -24,7 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ...
 
     // Insert the prescription into the prescriptions table
-    $sql = "INSERT INTO prescriptions (patient_ssn, doctor_ssn, drug_id, date_prescribed, quantity) VALUES ('$patient_ssn', '$doctor_ssn', '$drug_id', NOW(), '$quantity')";
+    $sql = "INSERT INTO prescriptions (patient_ssn, doctor_ssn, drug_id, date_prescribed, quantity) VALUES ('$patient_ssn', '$doctor_ssn', '$drug', CURDATE(), '$quantity')";
 
     if ($conn->query($sql) === TRUE) {
         echo "Prescription added successfully.";
