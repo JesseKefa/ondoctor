@@ -1,19 +1,19 @@
 <?php
-// Database connection settings
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ddapp";
 
-// Create a connection
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Process prescription form data
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $patient_ssn = $_POST['patient'];
     $doctor_ssn = $_POST['doctor_ssn'];
@@ -33,6 +33,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Close the database connection
+
 $conn->close();
 ?>

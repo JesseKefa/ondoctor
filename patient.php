@@ -92,7 +92,7 @@ mysqli_close($conn);
     }
 
     .logout-button {
-      background-color: #e74c3c;
+      background-color: green;
       color: #ffffff;
       border: none;
       padding: 8px 16px;
@@ -185,21 +185,21 @@ mysqli_close($conn);
   <h1>Patient Dashboard</h1>
 
     <?php
-    // Database connection settings
+   
     $servername = "localhost";
     $username = "root";
     $password = "";
     $dbname = "ddapp";
 
-    // Create a connection
+   
     $conn = new mysqli($servername, $username, $password, $dbname);
 
-    // Check connection
+    
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Fetch available doctors
+  
     $sql = "SELECT ssn, name FROM doctors";
     $result = $conn->query($sql);
 
@@ -220,7 +220,7 @@ mysqli_close($conn);
         echo '<p>No doctors found.</p>';
     }
 
-    // Prescription form
+  
     echo '<h2>Request Prescription</h2>';
     echo '<form action="prescription.php" method="post">';
     echo '<input type="hidden" name="patient_ssn" value="' . $_GET['ssn'] . '">'; // Assuming the patient's SSN is passed via URL parameter
@@ -243,7 +243,7 @@ mysqli_close($conn);
     echo '<input type="submit" value="Request">';
     echo '</form>';
 
-    // Close the database connection
+   
     $conn->close();
     ?>
 

@@ -1,19 +1,16 @@
 <?php
-
 $host = 'localhost';
 $db = 'ddapp';
 $user = 'root';
 $password = '';
 
-
 try {
     $conn = new PDO("mysql:host=$host;dbname=$db", $user, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
     exit();
 }
-
 
 $users = array();
 
@@ -65,71 +62,35 @@ try {
             'type' => 'Pharmacy'
         );
     }
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
     exit();
 }
 
-if (isset($_GET['action']) && isset($_GET['id'])) {
-    $action = $_GET['action'];
-    $id = $_GET['id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['add_drug'])) {
+        $trade_name = $_POST['trade_name'];
+        $formula = $_POST['formula'];
+        $pharmaceutical_company_id = $_POST['pharmaceutical_company_id'];
 
-    if ($action == 'edit') {
-        $user = array();
-        $type = '';
+        $stmt = $conn->prepare("INSERT INTO drugs (trade_name, formula, pharmaceutical_company_id) VALUES (:trade_name, :formula, :pharmaceutical_company_id)");
 
-        // Fetch user details from the database based on the ID and type
-        switch ($_GET['type']) {
-            case 'Patient':
-                $stmt = $conn->prepare("SELECT * FROM patients WHERE ssn = :id");
-                $stmt->bindParam(':id', $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                $type = 'Patient';
-                break;
+        $stmt->bindParam(':trade_name', $trade_name);
+        $stmt->bindParam(':formula', $formula);
+        $stmt->bindParam(':pharmaceutical_company_id', $pharmaceutical_company_id);
 
-            case 'Doctor':
-                $stmt = $conn->prepare("SELECT * FROM doctors WHERE ssn = :id");
-                $stmt->bindParam(':id', $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                $type = 'Doctor';
-                break;
-
-            case 'Pharmaceutical Company':
-                $stmt = $conn->prepare("SELECT * FROM pharmaceutical_companies WHERE id = :id");
-                $stmt->bindParam(':id', $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                $type = 'Pharmaceutical Company';
-                break;
-
-            case 'Pharmacy':
-                $stmt = $conn->prepare("SELECT * FROM pharmacies WHERE id = :id");
-                $stmt->bindParam(':id', $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                $type = 'Pharmacy';
-                break;
+        try {
+            $stmt->execute();
+            echo "Drug added successfully!";
+        } catch (PDOException $e) {
+            echo "Error adding drug: " . $e->getMessage();
         }
-
-        echo '<h2>Edit User</h2>';
-        echo '<form action="admin.php?action=update&id=' . $id . '&type=' . $type . '" method="POST">';
-        echo '<input type="hidden" name="id" value="' . $user['id'] . '">';
-        echo '<label for="username">Username:</label>';
-        echo '<input type="text" id="username" name="username" value="' . $user['name'] . '" required><br><br>';
-        echo '<label for="password">Password:</label>';
-        echo '<input type="password" id="password" name="password" required><br><br>';
-        echo '<input type="submit" value="Update">';
-        echo '</form>';
-    } elseif ($action == 'update') {
-       
+    } elseif (isset($_POST['update_user'])) {
         $id = $_POST['id'];
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        
-        switch ($_GET['type']) {
+        switch ($_POST['user_type']) {
             case 'Patient':
                 $stmt = $conn->prepare("UPDATE patients SET name = :username, password = :password WHERE ssn = :id");
                 break;
@@ -154,36 +115,80 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         try {
             $stmt->execute();
             echo "User updated successfully!";
-        } catch(PDOException $e) {
+        } catch (PDOException $e) {
             echo "Error updating user: " . $e->getMessage();
         }
-    } elseif ($action == 'delete') {
-        // Delete user from the database based on the provided ID and type
-        switch ($_GET['type']) {
-            case 'Patient':
-                $stmt = $conn->prepare("DELETE FROM patients WHERE ssn = :id");
-                break;
+    } elseif (isset($_POST['update_drug'])) {
+        $id = $_POST['id'];
+        $trade_name = $_POST['trade_name'];
+        $formula = $_POST['formula'];
+        $pharmaceutical_company_id = $_POST['pharmaceutical_company_id'];
 
-            case 'Doctor':
-                $stmt = $conn->prepare("DELETE FROM doctors WHERE ssn = :id");
-                break;
-
-            case 'Pharmaceutical Company':
-                $stmt = $conn->prepare("DELETE FROM pharmaceutical_companies WHERE id = :id");
-                break;
-
-            case 'Pharmacy':
-                $stmt = $conn->prepare("DELETE FROM pharmacies WHERE id = :id");
-                break;
-        }
+        $stmt = $conn->prepare("UPDATE drugs SET trade_name = :trade_name, formula = :formula, pharmaceutical_company_id = :pharmaceutical_company_id WHERE id = :id");
 
         $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':trade_name', $trade_name);
+        $stmt->bindParam(':formula', $formula);
+        $stmt->bindParam(':pharmaceutical_company_id', $pharmaceutical_company_id);
 
         try {
             $stmt->execute();
-            echo "User deleted successfully!";
-        } catch(PDOException $e) {
-            echo "Error deleting user: " . $e->getMessage();
+            echo "Drug updated successfully!";
+        } catch (PDOException $e) {
+            echo "Error updating drug: " . $e->getMessage();
+        }
+    }
+}
+
+if (isset($_GET['action']) && isset($_GET['id']) && isset($_GET['type'])) {
+    $action = $_GET['action'];
+    $id = $_GET['id'];
+    $type = $_GET['type'];
+
+    if ($action === 'delete') {
+        switch ($type) {
+            case 'Drug':
+                try {
+                    $stmt = $conn->prepare("DELETE FROM drugs WHERE id = :id");
+                    $stmt->bindParam(':id', $id);
+                    $stmt->execute();
+                    echo "Drug deleted successfully!";
+                } catch (PDOException $e) {
+                    echo "Error deleting drug: " . $e->getMessage();
+                }
+                break;
+
+            default:
+                // Handle other delete actions for users (patients, doctors, pharmaceutical companies, pharmacies)
+                try {
+                    switch ($type) {
+                        case 'Patient':
+                            $stmt = $conn->prepare("DELETE FROM patients WHERE ssn = :id");
+                            break;
+
+                        case 'Doctor':
+                            $stmt = $conn->prepare("DELETE FROM doctors WHERE ssn = :id");
+                            break;
+
+                        case 'Pharmaceutical Company':
+                            $stmt = $conn->prepare("DELETE FROM pharmaceutical_companies WHERE id = :id");
+                            break;
+
+                        case 'Pharmacy':
+                            $stmt = $conn->prepare("DELETE FROM pharmacies WHERE id = :id");
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    $stmt->bindParam(':id', $id);
+                    $stmt->execute();
+                    echo "User deleted successfully!";
+                } catch (PDOException $e) {
+                    echo "Error deleting user: " . $e->getMessage();
+                }
+                break;
         }
     }
 }
@@ -192,6 +197,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>OnDoc - Admin Dashboard</title>
     <style>
@@ -199,28 +205,63 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
             border-collapse: collapse;
             width: 100%;
         }
-        
-        th, td {
+
+        th,
+        td {
             text-align: left;
             padding: 8px;
         }
-        
+
         th {
             background-color: #4CAF50;
             color: white;
         }
-        
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        
+
         a {
             text-decoration: none;
         }
+
+        .logout-button {
+            background-color: green;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            }
+
+        input[type="text"],
+        form input[type="number"],
+        form input[type="password"] {
+            width: 200px;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        form input[type="submit"] {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
     </style>
 </head>
+
 <body>
     <h1>OnDoc - Admin Dashboard</h1>
+    <form method="post" action="logout.php">
+        <button class="logout-button" type="submit">Logout</button>
+    </form>
+
+    <h2>User List</h2>
     <table>
         <tr>
             <th>ID</th>
@@ -228,7 +269,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
             <th>Type</th>
             <th>Action</th>
         </tr>
-        <?php foreach ($users as $user): ?>
+        <?php foreach ($users as $user) : ?>
             <tr>
                 <td><?php echo $user['id']; ?></td>
                 <td><?php echo $user['username']; ?></td>
@@ -240,5 +281,138 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
             </tr>
         <?php endforeach; ?>
     </table>
+
+    
+    <h2>Add Drug</h2>
+    <form action="admin.php" method="POST">
+        <label for="trade_name">Drug Name:</label>
+        <input type="text" id="trade_name" name="trade_name" required><br>
+        <label for="formula">Formula:</label>
+        <input type="text" id="formula" name="formula" required><br>
+        <label for="pharmaceutical_company_id">Pharmaceutical Company ID:</label>
+        <input type="number" id="pharmaceutical_company_id" name="pharmaceutical_company_id" required><br>
+        <input type="submit" name="add_drug" value="Add Drug">
+    </form>
+
+    
+
+    <h2>Drug List</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Drug Name</th>
+            <th>Formula</th>
+            <th>Pharmaceutical Company ID</th>
+            <th>Action</th>
+        </tr>
+        <?php
+        $stmt = $conn->prepare("SELECT * FROM drugs");
+        $stmt->execute();
+        $drugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($drugs as $drug) :
+        ?>
+            <tr>
+                <td><?php echo $drug['id']; ?></td>
+                <td><?php echo $drug['trade_name']; ?></td>
+                <td><?php echo $drug['formula']; ?></td>
+                <td><?php echo $drug['pharmaceutical_company_id']; ?></td>
+                <td>
+                    <a href="admin.php?action=edit&id=<?php echo $drug['id']; ?>&type=Drug">Edit</a> |
+                    <a href="admin.php?action=delete&id=<?php echo $drug['id']; ?>&type=Drug">Delete</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+
+    <?php
+    if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id']) && isset($_GET['type'])) {
+        $id = $_GET['id'];
+        $type = $_GET['type'];
+        $user = null;
+    
+        switch ($type) {
+            case 'Patient':
+                $stmt = $conn->prepare("SELECT * FROM patients WHERE ssn = :id");
+                break;
+    
+            case 'Doctor':
+                $stmt = $conn->prepare("SELECT * FROM doctors WHERE ssn = :id");
+                break;
+    
+            case 'Pharmaceutical Company':
+                $stmt = $conn->prepare("SELECT * FROM pharmaceutical_companies WHERE id = :id");
+                break;
+    
+            case 'Pharmacy':
+                $stmt = $conn->prepare("SELECT * FROM pharmacies WHERE id = :id");
+                break;
+    
+            default:
+                break;
+        }
+    
+        $stmt->bindParam(':id', $id);
+    
+        try {
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error fetching user details: " . $e->getMessage();
+        }
+    
+        if ($user) {
+            echo '<h2>Edit User</h2>';
+            echo '<form action="admin.php" method="POST">';
+            echo '<input type="hidden" name="user_type" value="' . $type . '">';
+            echo '<input type="hidden" name="id" value="' . $id . '">';
+            echo '<label for="username">Username:</label>';
+            echo '<input type="text" id="username" name="username" value="' . $user['name'] . '" required><br>';
+            echo '<label for="password">Password:</label>';
+            echo '<input type="password" id="password" name="password" required><br>';
+            echo '<input type="submit" name="update_user" value="Update User">';
+            echo '</form>';
+        } else {
+            echo "User not found!";
+        }
+    }
+    
+    ?>
+
+    <?php
+    if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id']) && $_GET['type'] === 'Drug') {
+        $id = $_GET['id'];
+        $drug = null;
+
+        $stmt = $conn->prepare("SELECT * FROM drugs WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+
+        try {
+            $stmt->execute();
+            $drug = $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error fetching drug details: " . $e->getMessage();
+        }
+
+        if ($drug) {
+            echo '<h2>Edit Drug</h2>';
+            echo '<form action="admin.php" method="POST">';
+            echo '<input type="hidden" name="id" value="' . $id . '">';
+            echo '<label for="trade_name">Drug Name:</label>';
+            echo '<input type="text" id="trade_name" name="trade_name" value="' . $drug['trade_name'] . '" required><br>';
+            echo '<label for="formula">Formula:</label>';
+            echo '<input type="text" id="formula" name="formula" value="' . $drug['formula'] . '" required><br>';
+            echo '<label for="pharmaceutical_company_id">Pharmaceutical Company ID:</label>';
+            echo '<input type="number" id="pharmaceutical_company_id" name="pharmaceutical_company_id" value="' . $drug['pharmaceutical_company_id'] . '" required><br>';
+            echo '<input type="submit" name="update_drug" value="Update Drug">';
+            echo '</form>';
+        } else {
+            echo "Drug not found!";
+        }
+    }
+    ?>
+
 </body>
+
 </html>
+
+

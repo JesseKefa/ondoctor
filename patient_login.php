@@ -1,39 +1,37 @@
 <?php
-// Database configuration
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ddapp";
 
-// Establish a database connection
+
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 
-// Check if the connection was successful
+
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-// Check if the form is submitted
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $name = $_POST["name"];
   $password = $_POST["password"];
 
-  // Prepare the SQL query to fetch patient details
+
   $query = "SELECT * FROM patients WHERE name = '$name' LIMIT 1";
 
-  // Execute the query
   $result = mysqli_query($conn, $query);
 
   if ($result) {
-    // Fetch the patient from the result
+  
     $patient = mysqli_fetch_assoc($result);
 
     if ($patient && password_verify($password, $patient['password'])) {
-      // Start a session and store the patient's name
+      
       session_start();
       $_SESSION["name"] = $name;
 
-      // Redirect to patient landing page on successful login
       header("Location: patient.php");
       exit();
     } else {
@@ -43,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "<p style='color: red;'>Error: " . mysqli_error($conn) . "</p>";
   }
 
-  // Close the database connection
+ 
   mysqli_close($conn);
 }
 ?>

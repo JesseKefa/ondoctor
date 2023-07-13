@@ -95,7 +95,7 @@ $profile_picture = mysqli_fetch_assoc($result);
     }
 
     .logout-button {
-      background-color: #e74c3c;
+      background-color: green;
       color: #ffffff;
       border: none;
       padding: 8px 16px;
@@ -135,25 +135,45 @@ $profile_picture = mysqli_fetch_assoc($result);
       color: red;
       margin-top: 10px;
     }
+    
     table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+      border-collapse: collapse;
+      width: 100%;
+    }
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-
-
-
-
-
-
-
-
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .prescription-form {
+      margin-top: 20px;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+    
+    .prescription-form label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    
+    .prescription-form select,
+    .prescription-form input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .prescription-form input[type="submit"] {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -170,9 +190,7 @@ $profile_picture = mysqli_fetch_assoc($result);
         </div>
       </div>
       <form method="post" action="logout.php">
-        <button class="logout-button" type="submit">Logout</button>
-        <button class="logout-button"><a href="index.php">Home</a></button>
-        
+        <button class="logout-button" type="submit">Logout</button>       
       </form>
     </div>
     <div class="upload-form">
@@ -190,84 +208,117 @@ $profile_picture = mysqli_fetch_assoc($result);
     </div>
   </div>
 
-
-
   <h1>Doctor Dashboard</h1>
 
-<?php
-// Database connection settings
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ddapp";
+  <?php
 
-// Create a connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+  $servername = "localhost";
+  $username = "root";
+  $password = "";
+  $dbname = "ddapp";
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+  $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Fetch doctor's patients
-$doctor_ssn = $_GET['ssn']; // Assuming the doctor's SSN is passed via URL parameter
-$sql = "SELECT patients.ssn, patients.name, patients.address, patients.age FROM patients JOIN doctors ON patients.primary_physician_ssn = doctors.ssn WHERE doctors.ssn = '$doctor_ssn'";
-$result = $conn->query($sql);
+  if ($conn->connect_error) {
+      die("Connection failed: " . $conn->connect_error);
+  }
 
-if ($result->num_rows > 0) {
-    echo '<h2>Patients</h2>';
-    echo '<table>';
-    echo '<tr><th>SSN</th><th>Name</th><th>Address</th><th>Age</th></tr>';
+  $doctor_ssn = $_SESSION["ssn"];
+  $sql = "SELECT patients.ssn, patients.name, patients.address, patients.age FROM patients JOIN doctors ON patients.primary_physician_ssn = doctors.ssn WHERE doctors.ssn = '$doctor_ssn'";
+  $result = $conn->query($sql);
 
-    while ($row = $result->fetch_assoc()) {
-        echo '<tr>';
-        echo '<td>' . $row['ssn'] . '</td>';
-        echo '<td>' . $row['name'] . '</td>';
-        echo '<td>' . $row['address'] . '</td>';
-        echo '<td>' . $row['age'] . '</td>';
-        echo '</tr>';
+  if ($result->num_rows > 0) {
+      echo '<h2>Patients</h2>';
+      echo '<table>';
+      echo '<tr><th>SSN</th><th>Name</th><th>Address</th><th>Age</th></tr>';
+
+      while ($row = $result->fetch_assoc()) {
+          echo '<tr>';
+          echo '<td>' . $row['ssn'] . '</td>';
+          echo '<td>' . $row['name'] . '</td>';
+          echo '<td>' . $row['address'] . '</td>';
+          echo '<td>' . $row['age'] . '</td>';
+          echo '</tr>';
+      }
+
+      echo '</table>';
+  } else {
+      echo '<p>No patients found.</p>';
+  }
+  ?>
+
+  <div class="prescription-form">
+    <h2>Prescribe Drugs</h2>
+    <form action="doctor.php" method="post">
+      <input type="hidden" name="doctor_ssn" value="<?php echo $doctor_ssn; ?>">
+      <label for="patient">Select Patient:</label>
+      <select name="patient" id="patient">
+        <?php
+        $result = $conn->query("SELECT ssn, name FROM patients");
+        while ($row = $result->fetch_assoc()) {
+            echo '<option value="' . $row['ssn'] . '">' . $row['name'] . '</option>';
+        }
+        ?>
+      </select>
+      <br>
+      <label for="drug">Prescribe Drug:</label>
+      <select name="drug" id="drug">
+        <?php
+        $drugResult = $conn->query("SELECT id, trade_name FROM drugs");
+        while ($drugRow = $drugResult->fetch_assoc()) {
+            echo '<option value="' . $drugRow['id'] . '">' . $drugRow['trade_name'] . '</option>';
+        }
+        ?>
+      </select>
+      <br>
+      <label for="quantity">Quantity:</label>
+      <input type="number" name="quantity" id="quantity" min="1">
+      <br>
+      <input type="submit" name="prescribe" value="Prescribe">
+    </form>
+  </div>
+
+  <?php
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["prescribe"])) {
+  $doctor_ssn = $_POST["doctor_ssn"];
+  $patient_ssn = $_POST["patient"];
+  $drug_id = $_POST["drug"];
+  $quantity = $_POST["quantity"];
+
+  // Perform the prescription processing here
+
+  // Example prescription processing logic
+  $prescription_success = false;
+
+  // Check if all required fields are provided
+  if (!empty($doctor_ssn) && !empty($patient_ssn) && !empty($drug_id) && !empty($quantity)) {
+    // Perform additional validation or database operations if required
+
+    // Example: Insert the prescription into the database
+    $query = "INSERT INTO prescriptions (doctor_ssn, patient_ssn, drug_id, quantity) 
+              VALUES ('$doctor_ssn', '$patient_ssn', '$drug_id', '$quantity')";
+
+    // Execute the query
+    if (mysqli_query($conn, $query)) {
+      // Prescription was successfully saved
+      $prescription_success = true;
+    } else {
+      // Error occurred while saving the prescription
+      echo "Error: " . mysqli_error($conn);
     }
+  } else {
+    // Required fields are missing
+    echo "Please provide all the required information.";
+  }
 
-    echo '</table>';
-} else {
-    echo '<p>No patients found.</p>';
+  // Display success or error message
+  if ($prescription_success) {
+    echo "<p>Prescription successful!</p>";
+  } else {
+    echo "<p>Prescription failed. Please try again.</p>";
+  }
 }
-
-// Prescription form
-echo '<h2>Prescribe Drugs</h2>';
-echo '<form action="prescription.php" method="post">';
-echo '<input type="hidden" name="doctor_ssn" value="' . $doctor_ssn . '">';
-echo '<label for="patient">Select Patient:</label>';
-echo '<select name="patient" id="patient">';
-
-$result = $conn->query("SELECT ssn, name FROM patients");
-while ($row = $result->fetch_assoc()) {
-    echo '<option value="' . $row['ssn'] . '">' . $row['name'] . '</option>';
-}
-
-echo '</select>';
-echo '<br>';
-echo '<label for="drug">Prescribe Drug:</label>';
-echo '<input type="text" name="drug" id="drug">';
-echo '<br>';
-echo '<label for="quantity">Quantity:</label>';
-echo '<input type="number" name="quantity" id="quantity" min="1">';
-echo '<br>';
-echo '<input type="submit" value="Prescribe">';
-echo '</form>';
-
-// Close the database connection
-$conn->close();
 ?>
-
-
-
-
-
-
-
-  
-
 
 </body>
 </html>
