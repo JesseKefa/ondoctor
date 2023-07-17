@@ -5,22 +5,19 @@ if (!isset($_SESSION['username']) || $_SESSION['user_type'] !== 'pharmaceutical_
     exit();
 }
 
-
-
-// Database connection
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ddapp";
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 
-// Retrieve pharmacy information from the database
+
 $pharmacy_name = $_SESSION['pharmacy_name'];
 $query = "SELECT * FROM pharmacies WHERE name = '$pharmacy_name'";
 $result = mysqli_query($conn, $query);
 $pharmacy = mysqli_fetch_assoc($result);
 
-// Retrieve drugs available at the pharmacy
+
 $query = "SELECT drugs.trade_name, drugs.formula, pharmacy_drugs.price 
           FROM drugs 
           INNER JOIN pharmacy_drugs ON drugs.id = pharmacy_drugs.drug_id 

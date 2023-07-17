@@ -1,40 +1,40 @@
 <?php
-// Database configuration
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ddapp";
 
-// Establish a database connection
+
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 
-// Check if the connection was successful
+
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-// Check if the form is submitted
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $name = $_POST["name"];
   $address = $_POST["address"];
   $age = $_POST["age"];
   $password = $_POST["password"];
 
-  // Hash the password
+
   $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-  // Prepare the SQL query to insert patient details
+
   $query = "INSERT INTO patients (name, address, age, password)
             VALUES ('$name', '$address', '$age', '$hashedPassword')";
 
-  // Execute the query
+
   if (mysqli_query($conn, $query)) {
     echo "Patient registered successfully!";
   } else {
     echo "Error: " . mysqli_error($conn);
   }
 
-  // Close the database connection
+
   mysqli_close($conn);
 }
 ?>
