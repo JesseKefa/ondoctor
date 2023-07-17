@@ -5,45 +5,36 @@ $username = "root";
 $password = "";
 $dbname = "ddapp";
 
-
 $conn = mysqli_connect($servername, $username, $password, $dbname);
-
 
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $id = $_POST["id"];
+  $name = $_POST["name"];
   $password = $_POST["password"];
 
-  
-  $query = "SELECT * FROM pharmacies WHERE id = '$id' LIMIT 1";
+  $query = "SELECT * FROM pharmacies WHERE name = '$name' LIMIT 1";
 
- 
   $result = mysqli_query($conn, $query);
 
   if ($result) {
-   
     $pharmacy = mysqli_fetch_assoc($result);
 
     if ($pharmacy && password_verify($password, $pharmacy['password'])) {
-     
       session_start();
-      $_SESSION["id"] = $id;
+      $_SESSION["id"] = $pharmacy['id'];
 
-      
       header("Location: pharmacy.php");
       exit();
     } else {
-      echo "<p style='color: red;'>Invalid ID or password</p>";
+      echo "<p style='color: red;'>Invalid name or password</p>";
     }
   } else {
     echo "<p style='color: red;'>Error: " . mysqli_error($conn) . "</p>";
   }
 
-  
   mysqli_close($conn);
 }
 ?>
@@ -103,18 +94,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Pharmacy Login</h2>
+    <h2><a href="index.php" class="logout-button">Home</a></h2>
     <form method="post">
-      <label for="id">ID:</label>
-      <input type="text" id="id" name="id" required><br><br>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required><br><br>
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" required><br><br>
       <input type="submit" value="Login">
     </form>
+    <p>Don't have an account? <a href="pharmacy_signup.php">Signup here</a></p>
   </div>
 </body>
 </html>

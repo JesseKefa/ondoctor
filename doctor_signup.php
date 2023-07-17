@@ -1,40 +1,41 @@
 <?php
-// Database configuration
+
 $servername = "localhost";
 $username = "root";
 $password = "";
 $dbname = "ddapp";
 
-// Establish a database connection
+
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 
-// Check if the connection was successful
+
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-// Check if the form is submitted
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $name = $_POST["name"];
   $specialty = $_POST["specialty"];
   $yearsOfExperience = $_POST["years_of_experience"];
   $password = $_POST["password"];
 
-  // Hash the password
+
   $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-  // Prepare the SQL query to insert edoctor details
+
   $query = "INSERT INTO doctors (name, specialty, years_of_experience, password)
             VALUES ('$name', '$specialty', '$yearsOfExperience', '$hashedPassword')";
 
-  // Execute the query
+
   if (mysqli_query($conn, $query)) {
-    echo "Edoctor registered successfully!";
+    echo "Doctor registered successfully!";
   } else {
     echo "Error: " . mysqli_error($conn);
   }
 
-  // Close the database connection
+ 
   mysqli_close($conn);
 }
 ?>
@@ -78,6 +79,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       border-radius: 4px;
       box-sizing: border-box;
     }
+    
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
   
     input[type="submit"] {
       display: block;
@@ -94,16 +103,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Edoctor Signup</h2>
+    <h2>Doctor Signup</h2>
+    <h2><a href="index.php" class="logout-button">Home</a></h2>
     <form method="post">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required><br><br>
       <label for="specialty">Specialty:</label>
-      <input type="text" id="specialty" name="specialty" required><br><br>
+      <select id="specialty" name="specialty" required>
+        <option>Orthodontics</option>
+        <option>Neurologist</option>
+        <option>Psychiatrist</option>
+        <option>Cardiologist</option>
+        <option>Dermatologist</option>
+      </select><br><br>
       <label for="years_of_experience">Years of Experience:</label>
       <input type="number" id="years_of_experience" name="years_of_experience" required><br><br>
       <label for="password">Password:</label>

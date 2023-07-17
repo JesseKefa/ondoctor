@@ -94,11 +94,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Pharmacy Signup</h2>
+    <h2><a href="index.php" class="logout-button">Home</a></h2>
     <form method="post">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required><br><br>
@@ -110,6 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="password" id="password" name="password" required><br><br>
       <input type="submit" value="Signup">
     </form>
+    <p>Already have an account? <a href="pharmacy_login.php">Login here</a></p>
   </div>
 </body>
 </html>

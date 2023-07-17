@@ -1,39 +1,38 @@
 <?php
-// Database configuration
+
 $hostname = "localhost";
 $username = "root";
 $password = "";
 $database = "ddapp";
 
-// Establish a database connection
+
 $conn = mysqli_connect($hostname, $username, $password, $database);
 
-// Check if the connection was successful
+
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
 
-// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $name = $_POST["name"];
   $password = $_POST["password"];
 
-  // Prepare the SQL query to fetch doctor details
+  
   $query = "SELECT * FROM doctors WHERE name = '$name' LIMIT 1";
 
-  // Execute the query
+ 
   $result = mysqli_query($conn, $query);
 
   if ($result) {
-    // Fetch the doctor from the result
+   
     $doctor = mysqli_fetch_assoc($result);
 
     if ($doctor && password_verify($password, $doctor['password'])) {
-      // Start a session and store the name
+      
       session_start();
       $_SESSION["name"] = $name;
 
-      // Redirect to doctor landing page on successful login
+      
       header("Location: doctor.php");
       exit();
     } else {
@@ -43,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $error_message = "Error: " . mysqli_error($conn);
   }
 
-  // Close the database connection
+ 
   mysqli_close($conn);
 }
 ?>
@@ -108,11 +107,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       color: red;
       margin-top: 10px;
     }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Doctor Login</h2>
+    <h2><a href="index.php" class="logout-button">Home</a></h2>
     <form method="post">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required><br><br>

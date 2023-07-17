@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Choose Role</title>
+    <title>OnDoc</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,8 +53,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Choose Role</h1>
-        <p>Select your role:</p>
+        <h1>OnDoc</h1>
+        <h1>Select your role:</h1>
         <ul>
             <li><a href="doctor_login.php">Doctor</a></li>
             <li><a href="patient_login.php">Patient</a></li>
@@ -68,7 +68,7 @@
 
     links.forEach(link => {
     link.addEventListener('mouseover', () => {
-        link.style.backgroundColor = '#333';
+        link.style.backgroundColor = 'green';
         link.style.color = '#fff';
     });
 

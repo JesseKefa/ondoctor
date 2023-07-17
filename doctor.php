@@ -1,13 +1,10 @@
 <?php
-
 session_start();
-
 
 if (!isset($_SESSION["name"])) {
   header("Location: doctor_login.php");
   exit();
 }
-
 
 $hostname = "localhost";
 $username = "root";
@@ -16,11 +13,9 @@ $database = "ddapp";
 
 $conn = mysqli_connect($hostname, $username, $password, $database);
 
-
 if (!$conn) {
   die("Connection failed: " . mysqli_connect_error());
 }
-
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -31,23 +26,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file_size = $_FILES["profile_picture"]["size"];
     $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
     
-
     if ($file_size > 5242880) { 
       $error_message = "File size exceeds the allowed limit (5MB).";
     } else {
-
       $new_file_name = uniqid("profile_", true) . "." . $file_ext;
-      
-
       $upload_path = "profile_pictures/" . $new_file_name;
       
-
       if (move_uploaded_file($file_tmp, $upload_path)) {
-    
         $query = "INSERT INTO profile_pictures (doctor_name, file_name, file_path) 
                   VALUES ('$name', '$file_name', '$upload_path')";
         
-    
         if (mysqli_query($conn, $query)) {
           $success_message = "Profile picture uploaded successfully!";
         } else {
@@ -62,12 +50,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 }
 
-
 $name = $_SESSION["name"];
 $query = "SELECT file_path FROM profile_pictures WHERE doctor_name = '$name' ORDER BY id DESC LIMIT 1";
 $result = mysqli_query($conn, $query);
 $profile_picture = mysqli_fetch_assoc($result);
 ?>
+
+
 
 <!DOCTYPE html>
 <html>
@@ -135,45 +124,27 @@ $profile_picture = mysqli_fetch_assoc($result);
       color: red;
       margin-top: 10px;
     }
-    
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
 
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .prescription-form {
-      margin-top: 20px;
-      background-color: #f2f2f2;
-      padding: 20px;
-    }
-    
-    .prescription-form label {
-      display: block;
-      margin-bottom: 10px;
-    }
-    
-    .prescription-form select,
-    .prescription-form input[type="number"] {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-    }
-    
-    .prescription-form input[type="submit"] {
-      background-color: green;
-      color: #ffffff;
-      border: none;
-      padding: 8px 16px;
-      font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
+    .patient-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .patient-table th,
+  .patient-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .patient-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+
+  .patient-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
   </style>
 </head>
 <body>
@@ -196,8 +167,8 @@ $profile_picture = mysqli_fetch_assoc($result);
     <div class="upload-form">
       <h2>Upload Profile Picture</h2>
       <form method="post" enctype="multipart/form-data">
-        <input type="file" name="profile_picture" required><br><br>
-        <input type="submit" value="Upload">
+        <input class="logout-button" type="file" name="profile_picture" required><br><br>
+        <input class="logout-button" type="submit" value="Upload">
       </form>
       <?php if (isset($success_message)): ?>
         <p class="success-message"><?php echo $success_message; ?></p>
@@ -210,8 +181,16 @@ $profile_picture = mysqli_fetch_assoc($result);
 
   <h1>Doctor Dashboard</h1>
 
-  <?php
 
+
+<table class="patient-table">
+  <tr>
+    <th>Patient Name</th>
+    <th>Address</th>
+    <th>Age</th>
+  </tr>
+  <?php
+ 
   $servername = "localhost";
   $username = "root";
   $password = "";
@@ -220,105 +199,23 @@ $profile_picture = mysqli_fetch_assoc($result);
   $conn = new mysqli($servername, $username, $password, $dbname);
 
   if ($conn->connect_error) {
-      die("Connection failed: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
   }
 
-  $doctor_ssn = $_SESSION["ssn"];
-  $sql = "SELECT patients.ssn, patients.name, patients.address, patients.age FROM patients JOIN doctors ON patients.primary_physician_ssn = doctors.ssn WHERE doctors.ssn = '$doctor_ssn'";
-  $result = $conn->query($sql);
+  $query = "SELECT name, address, age FROM patients WHERE primary_physician_ssn = '8'";
+  $result = mysqli_query($conn, $query);
 
-  if ($result->num_rows > 0) {
-      echo '<h2>Patients</h2>';
-      echo '<table>';
-      echo '<tr><th>SSN</th><th>Name</th><th>Address</th><th>Age</th></tr>';
 
-      while ($row = $result->fetch_assoc()) {
-          echo '<tr>';
-          echo '<td>' . $row['ssn'] . '</td>';
-          echo '<td>' . $row['name'] . '</td>';
-          echo '<td>' . $row['address'] . '</td>';
-          echo '<td>' . $row['age'] . '</td>';
-          echo '</tr>';
-      }
-
-      echo '</table>';
-  } else {
-      echo '<p>No patients found.</p>';
+  while ($row = mysqli_fetch_assoc($result)) {
+    echo "<tr>";
+    echo "<td>" . $row['name'] . "</td>";
+    echo "<td>" . $row['address'] . "</td>";
+    echo "<td>" . $row['age'] . "</td>";
+    echo "</tr>";
   }
   ?>
+</table> 
 
-  <div class="prescription-form">
-    <h2>Prescribe Drugs</h2>
-    <form action="doctor.php" method="post">
-      <input type="hidden" name="doctor_ssn" value="<?php echo $doctor_ssn; ?>">
-      <label for="patient">Select Patient:</label>
-      <select name="patient" id="patient">
-        <?php
-        $result = $conn->query("SELECT ssn, name FROM patients");
-        while ($row = $result->fetch_assoc()) {
-            echo '<option value="' . $row['ssn'] . '">' . $row['name'] . '</option>';
-        }
-        ?>
-      </select>
-      <br>
-      <label for="drug">Prescribe Drug:</label>
-      <select name="drug" id="drug">
-        <?php
-        $drugResult = $conn->query("SELECT id, trade_name FROM drugs");
-        while ($drugRow = $drugResult->fetch_assoc()) {
-            echo '<option value="' . $drugRow['id'] . '">' . $drugRow['trade_name'] . '</option>';
-        }
-        ?>
-      </select>
-      <br>
-      <label for="quantity">Quantity:</label>
-      <input type="number" name="quantity" id="quantity" min="1">
-      <br>
-      <input type="submit" name="prescribe" value="Prescribe">
-    </form>
-  </div>
-
-  <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["prescribe"])) {
-  $doctor_ssn = $_POST["doctor_ssn"];
-  $patient_ssn = $_POST["patient"];
-  $drug_id = $_POST["drug"];
-  $quantity = $_POST["quantity"];
-
-  // Perform the prescription processing here
-
-  // Example prescription processing logic
-  $prescription_success = false;
-
-  // Check if all required fields are provided
-  if (!empty($doctor_ssn) && !empty($patient_ssn) && !empty($drug_id) && !empty($quantity)) {
-    // Perform additional validation or database operations if required
-
-    // Example: Insert the prescription into the database
-    $query = "INSERT INTO prescriptions (doctor_ssn, patient_ssn, drug_id, quantity) 
-              VALUES ('$doctor_ssn', '$patient_ssn', '$drug_id', '$quantity')";
-
-    // Execute the query
-    if (mysqli_query($conn, $query)) {
-      // Prescription was successfully saved
-      $prescription_success = true;
-    } else {
-      // Error occurred while saving the prescription
-      echo "Error: " . mysqli_error($conn);
-    }
-  } else {
-    // Required fields are missing
-    echo "Please provide all the required information.";
-  }
-
-  // Display success or error message
-  if ($prescription_success) {
-    echo "<p>Prescription successful!</p>";
-  } else {
-    echo "<p>Prescription failed. Please try again.</p>";
-  }
-}
-?>
 
 </body>
 </html>

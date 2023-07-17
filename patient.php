@@ -66,6 +66,11 @@ $profile_picture = mysqli_fetch_assoc($result);
 mysqli_close($conn);
 ?>
 
+
+
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -164,7 +169,6 @@ mysqli_close($conn);
       </div>
       <form method="post" action="logout.php">
         <button class="logout-button" type="submit">Logout</button>
-        <button class="logout-button"><a href="index.php">Home</a></button>
       </form>
     </div>
     <div class="upload-form">
@@ -221,31 +225,9 @@ mysqli_close($conn);
     }
 
   
-    echo '<h2>Request Prescription</h2>';
-    echo '<form action="prescription.php" method="post">';
-    echo '<input type="hidden" name="patient_ssn" value="' . $_GET['ssn'] . '">'; // Assuming the patient's SSN is passed via URL parameter
-    echo '<label for="doctor">Select Doctor:</label>';
-    echo '<select name="doctor" id="doctor">';
-
-    $result = $conn->query("SELECT ssn, name FROM doctors");
-    while ($row = $result->fetch_assoc()) {
-        echo '<option value="' . $row['ssn'] . '">' . $row['name'] . '</option>';
-    }
-
-    echo '</select>';
-    echo '<br>';
-    echo '<label for="drug">Request Drug:</label>';
-    echo '<input type="text" name="drug" id="drug">';
-    echo '<br>';
-    echo '<label for="quantity">Quantity:</label>';
-    echo '<input type="number" name="quantity" id="quantity" min="1">';
-    echo '<br>';
-    echo '<input type="submit" value="Request">';
-    echo '</form>';
-
-   
-    $conn->close();
+    
     ?>
+
 
 </body>
 </html>

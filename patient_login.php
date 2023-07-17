@@ -101,11 +101,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Patient Login</h2>
+    <h2><a href="index.php" class="logout-button">Home</a></h2>
     <form method="post">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required><br><br>
@@ -113,6 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="password" id="password" name="password" required><br><br>
       <input type="submit" value="Login">
       <p>Don't have an account? <a href="patient_signup.php">Signup here</a></p>
+      
     </form>
   </div>
 </body>

@@ -106,6 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'Pharmacy':
                 $stmt = $conn->prepare("UPDATE pharmacies SET name = :username, password = :password WHERE id = :id");
                 break;
+
+            default:
+            echo "Invalid user type!";
+            exit();
         }
 
         $stmt->bindParam(':id', $id);
@@ -159,7 +163,7 @@ if (isset($_GET['action']) && isset($_GET['id']) && isset($_GET['type'])) {
                 break;
 
             default:
-                // Handle other delete actions for users (patients, doctors, pharmaceutical companies, pharmacies)
+               
                 try {
                     switch ($type) {
                         case 'Patient':
@@ -201,58 +205,82 @@ if (isset($_GET['action']) && isset($_GET['id']) && isset($_GET['type'])) {
 <head>
     <title>OnDoc - Admin Dashboard</title>
     <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+    body {
+        font-family: Arial, sans-serif;
+    }
 
-        th,
-        td {
-            text-align: left;
-            padding: 8px;
-        }
+    h1, h2 {
+        color: #333;
+    }
 
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+    }
 
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
+    th,
+    td {
+        text-align: left;
+        padding: 8px;
+    }
 
-        a {
-            text-decoration: none;
-        }
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
 
-        .logout-button {
-            background-color: green;
-            color: #ffffff;
-            border: none;
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
 
-        input[type="text"],
-        form input[type="number"],
-        form input[type="password"] {
-            width: 200px;
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
+    a {
+        text-decoration: none;
+        color: #000;
+    }
 
-        form input[type="submit"] {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-    </style>
+    .logout-button {
+        background-color: green;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    input[type="submit"] {
+        background-color: #4CAF50;
+        color: #ffffff;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .success-message {
+        color: green;
+        margin-top: 10px;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+    }
+</style>
+
 </head>
 
 <body>
@@ -282,7 +310,7 @@ if (isset($_GET['action']) && isset($_GET['id']) && isset($_GET['type'])) {
         <?php endforeach; ?>
     </table>
 
-    
+
     <h2>Add Drug</h2>
     <form action="admin.php" method="POST">
         <label for="trade_name">Drug Name:</label>

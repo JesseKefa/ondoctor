@@ -88,11 +88,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     input[type="submit"]:hover {
       background-color: #45a049;
     }
+    .logout-button {
+      background-color: green;
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Admin Signup</h2>
+    <h2><a href="index.php" class="logout-button">Home</a></h2>
     <form method="post">
       <label for="username">Username:</label>
       <input type="text" id="username" name="username" required><br><br>
