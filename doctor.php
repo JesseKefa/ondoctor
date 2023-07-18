@@ -8,7 +8,7 @@ if (!isset($_SESSION["name"])) {
 
 $hostname = "localhost";
 $username = "root";
-$password = "";
+$password = ""; 
 $database = "ddapp"; 
 
 $conn = mysqli_connect($hostname, $username, $password, $database);
@@ -55,6 +55,11 @@ $query = "SELECT file_path FROM profile_pictures WHERE doctor_name = '$name' ORD
 $result = mysqli_query($conn, $query);
 $profile_picture = mysqli_fetch_assoc($result);
 ?>
+
+
+
+
+
 
 
 
@@ -215,6 +220,13 @@ $profile_picture = mysqli_fetch_assoc($result);
   }
   ?>
 </table> 
+
+
+
+
+
+
+
 
 
 </body>

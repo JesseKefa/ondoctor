@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,7 +63,7 @@
       <h3>Prescriptions</h3>
       <table>
         <tr>
-          <th>ID</th>
+          <th>Prescription ID</th>
           <th>Patient SSN</th>
           <th>Doctor SSN</th>
           <th>Drug ID</th>
@@ -101,12 +102,23 @@
         } else {
           echo "<tr><td colspan='6'>No prescriptions found</td></tr>";
         }
-      
+       
         
         mysqli_close($conn);
         ?>
       </table>
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+
+
 </body>
 </html>

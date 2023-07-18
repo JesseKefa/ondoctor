@@ -124,11 +124,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <input type="text" id="name" name="name" required><br><br>
       <label for="specialty">Specialty:</label>
       <select id="specialty" name="specialty" required>
-        <option>Orthodontics</option>
-        <option>Neurologist</option>
-        <option>Psychiatrist</option>
-        <option>Cardiologist</option>
-        <option>Dermatologist</option>
+        <option>General Health</option>
+        <option>Cardiology</option>
+        <option>Dental</option>
+        <option>Neurology</option>
+        <option>Orthopaedics</option>
       </select><br><br>
       <label for="years_of_experience">Years of Experience:</label>
       <input type="number" id="years_of_experience" name="years_of_experience" required><br><br>
