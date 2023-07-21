@@ -302,6 +302,44 @@ if ($result->num_rows > 0) {
 }
 ?> 
   
+
+
+  <?php
+  $servername = "localhost";
+  $username = "root";
+  $password = "";
+  $dbname = "ddapp";
+
+  $conn = new mysqli($servername, $username, $password, $dbname);
+
+  if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+  }
+
+  if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if (isset($_POST['full_name']) && isset($_POST['email']) && isset($_POST['appointment_date']) && isset($_POST['department']) && isset($_POST['phone_number']) && isset($_POST['message'])) {
+      $fullName = $_POST['full_name'];
+      $email = $_POST['email'];
+      $appointmentDate = $_POST['appointment_date'];
+      $department = $_POST['department'];
+      $phoneNumber = $_POST['phone_number'];
+      $message = $_POST['message'];
+     
+
+      $sql = "INSERT INTO appointments (full_name, email, appointment_date, department, phone_number, message)
+              VALUES ('$fullName', '$email', '$appointmentDate', '$department', '$phoneNumber', '$message')";
+
+      if ($conn->query($sql) === TRUE) {
+        echo "Appointment request submitted successfully.";
+      } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+      }
+    }
+  }
+
+  $conn->close();
+  ?>
+
 <div class="page-section">
   <div class="container">
     <h1 class="text-center wow">Request a Prescription</h1>
@@ -332,15 +370,6 @@ if ($result->num_rows > 0) {
         <div class="col-12 py-2 wow" data-wow-delay="300ms">
           <textarea name="message" id="message" class="form-control" rows="6" placeholder="Enter message.." name="message"></textarea>
         </div>
-        <div class="col-12 py-2 wow" data-wow-delay="300ms">
-          <select name="primary_physician" id="primary_physician" class="custom-select">
-            <option value="">Select Primary Physician</option>
-            <option value="1">Dr. John Doe</option>
-            <option value="2">Dr. Jane Smith</option>
-            <option value="3">Dr. Mark Johnson</option>
-            <!-- Add more options here -->
-          </select>
-        </div>
       </div>
 
       <button type="submit" class="btn btn-primary mt-3 wow">Submit Request</button>
@@ -348,43 +377,88 @@ if ($result->num_rows > 0) {
     </form>
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="page-section">
+  <div class="container">
+    <h1 class="text-center wow">Update Primary Physician</h1>
+
+    <form class="main-form" method="post" action="">
+      <div class="row mt-5">
+        <div class="col-12 col-sm-6 py-2 wow">
+          <input type="text" class="form-control" placeholder="Full name" name="full_name">
+        </div>
+        <div class="col-12 py-2 wow" data-wow-delay="300ms">
+        <input type="text" class="form-control" placeholder="Primary Physician" name="primary_physician">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-3 wow">Update Primary Physician</button>
+    </form>
+  </div>
+</div>
+
 <?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $fullName = $_POST['full_name'];
+    $primaryPhysician = $_POST['primary_physician'];
 
-$fullName = $_POST['full_name'];
-$email = $_POST['email'];
-$appointmentDate = $_POST['appointment_date'];
-$department = $_POST['department'];
-$phoneNumber = $_POST['phone_number'];
-$message = $_POST['message'];
-$primaryPhysician = $_POST['primary_physician'];
+    // Form validation
+    if (empty($fullName) || empty($primaryPhysician)) {
+        echo "Please fill in all the fields.";
+    } else {
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "ddapp";
 
+        $conn = new mysqli($servername, $username, $password, $dbname);
 
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
 
+        // Update the primary physician SSN for the patient
+        $sql = "UPDATE patients SET primary_physician_ssn='$primaryPhysician' WHERE name='$fullName'";
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ddapp";
+        if ($conn->query($sql) === TRUE) {
+            echo "Primary physician updated successfully for patient: $fullName";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+        // Close the connection
+        $conn->close();
+    }
 }
-
-
-$sql = "INSERT INTO appointments (full_name, email, appointment_date, department, phone_number, message, primary_physician)
-        VALUES ('$fullName', '$email', '$appointmentDate', '$department', '$phoneNumber', '$message', '$primaryPhysician')";
-
-if ($conn->query($sql) === TRUE) {
-  echo "Appointment request submitted successfully.";
-} else {
-  echo "Error: " . $sql . "<br>" . $conn->error;
-}
-
-$conn->close();
 ?>
+
+
+
+
+
+
+
+
+
+
 
 
 

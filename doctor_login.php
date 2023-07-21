@@ -30,7 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($doctor && password_verify($password, $doctor['password'])) {
       
       session_start();
-      $_SESSION["name"] = $name;
+      $_SESSION["name"] = $doctor_data["name"];
+      $_SESSION["primary_physician_ssn"] = $doctor_data["primary_physician_ssn"];
 
       
       header("Location: doctor.php");
